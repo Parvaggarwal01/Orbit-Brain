@@ -1,0 +1,32 @@
+# dependencies
+/node_modules
+
+# environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS and editor specific files
+.DS_Store
+Thumbs.db
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# production build (if applicable, e.g., if you build a static client in the backend)
+/build
+/dist
+
+# testing
+/coverage
+
+# misc
+*.log
+*.tmp

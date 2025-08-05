@@ -4,8 +4,9 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import dotenv from "dotenv";
 import cors from "cors";
-import { ContentModel, UserModel } from "./db.js";
+import { ContentModel, LinkModel, UserModel } from "./db.js";
 import { UserMiddleware } from "./middleware.js";
+import { random } from "./utils.js";
 
 const app = express();
 app.use(express.json());
@@ -161,9 +162,79 @@ app.delete("/api/v1/content", UserMiddleware, async (req, res) => {
   }
 });
 
-app.post("/api/v1/brain/share", (req, res) => {});
+app.post("/api/v1/brain/share",UserMiddleware, async (req, res) => {
+  const share = req.body.share;
+  try{
+    if(share){
+      const existingShare = await LinkModel.findOne({
+        //@ts-ignore
+        userId: req.userId,
+      })
+      if(existingShare){
+        return res.json({
+          message: "Share link already exists",
+          hash: existingShare.hash
+        })
+      }
 
-app.get("/api/v1/brain/share", (req, res) => {});
+      const hash = random(10);
+      await LinkModel.create({
+        //@ts-ignore
+        userId: req.userId,
+        hash: hash,
+      })
+
+      res.json({
+        message : "Share Link Created Successfully",
+        hash: hash
+      })
+    }else {
+      await LinkModel.deleteOne({
+        //@ts-ignore
+        userId: req.userId,
+      })
+
+      res.json({
+        message: "Share Link Deleted Successfully",
+      })
+    }
+  } catch (err) {
+    return res.status(500).json({
+      message: "Internal Server Error"
+    })
+  }
+});
+
+app.get("/api/v1/brain/:shareLink", async (req, res) => {
+  const hash = req.params.shareLink;
+  const link = await LinkModel.findOne({
+    hash: hash,
+  })
+
+  if(!link){
+    return res.status(404).json({
+      message: "Invalid Link"
+    })
+  }
+  const content = await ContentModel.find({
+    userId: link.userId,
+  })
+
+  const user = await UserModel.findOne({
+    _id: link.userId
+  })
+
+  if(!user){
+    return res.status(411).json({
+      message :"User Not Found"
+    })
+  }
+
+  res.json({
+    username: user.username,
+    content: content
+  })
+});
 
 
 

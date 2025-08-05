@@ -4,7 +4,8 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import dotenv from "dotenv";
 import cors from "cors";
-import { UserModel } from "./db.js";
+import { ContentModel, UserModel } from "./db.js";
+import { UserMiddleware } from "./middleware.js";
 
 const app = express();
 app.use(express.json());
@@ -97,20 +98,74 @@ app.post("/api/v1/signin", async (req, res) => {
   }
 });
 
-app.post("/api/v1/content", (req, res) => {
+app.post("/api/v1/content", UserMiddleware, async (req, res) => {
   const link = req.body.link;
-  const title = req.body.title;
+  const type = req.body.type;
 
-  
+  await ContentModel.create({
+    link: link,
+    type: type,
+
+    //@ts-ignore
+    userId: req.userId,
+    tags: [],
+  });
+
+  return res.status(200).json({
+    message: "Content Created Successfully",
+  });
 });
 
-app.get("/api/v1/content", (req, res) => {});
+app.get("/api/v1/content", UserMiddleware, async (req, res) => {
+  //@ts-ignore
+  const userId = req.userId;
+  const content = await ContentModel.find({
+    userId: userId,
+  }).populate("userId", "username");
 
-app.delete("/api/v1/content", (req, res) => {});
+  res.json({
+    content: content,
+  });
+});
+
+app.delete("/api/v1/content", UserMiddleware, async (req, res) => {
+  try {
+    const contentId = req.body.contentId;
+
+    if (!contentId) {
+      return res.status(400).json({
+        message: "Content ID is required",
+      });
+    }
+
+    const deletedContent = await ContentModel.findOneAndDelete({
+      _id: contentId,
+      //@ts-ignore
+      userId: req.userId,
+    });
+
+    if (!deletedContent) {
+      return res.status(404).json({
+        message: "Content not found or you don't have permission to delete it",
+      });
+    }
+
+    res.json({
+      message: "Content Deleted Successfully",
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Internal Server Error",
+      error: error,
+    });
+  }
+});
 
 app.post("/api/v1/brain/share", (req, res) => {});
 
 app.get("/api/v1/brain/share", (req, res) => {});
+
+
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

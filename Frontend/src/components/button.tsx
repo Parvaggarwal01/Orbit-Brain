@@ -9,7 +9,7 @@ interface ButtonProps {
   size: size;
   startIcon?: ReactElement;
   endIcon?: ReactElement;
-  onClick: () => void;
+  onClick?: () => void;
 
 }
 

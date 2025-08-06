@@ -7,5 +7,5 @@ export const iconSizeVariants = {
     "sm": 'size-2',
     "md": 'size-4',
     "lg": 'size-6',
-    "xl": 'size-14'
+    "xl": 'size-10'
 }

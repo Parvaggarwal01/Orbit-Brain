@@ -14,9 +14,13 @@ interface ContentItem {
 
 export const UserContent = () => {
   const [contents, setContents] = useState<ContentItem[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  const token = localStorage.getItem("token");
   useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    setLoading(true);
     axios
       .get(`${BACKEND_URL}/api/v1/content`, {
         headers: {
@@ -29,8 +33,17 @@ export const UserContent = () => {
       })
       .catch((error) => {
         console.error("Failed to fetch content:", error);
+        // Only remove token for authentication errors
+        if (error.response?.status === 401 || error.response?.status === 403) {
+          console.log("Authentication failed, removing token");
+          localStorage.removeItem("token");
+          window.location.href = "/signin";
+        }
+      })
+      .finally(() => {
+        setLoading(false);
       });
   }, []);
 
-  return contents;
+  return { contents, loading };
 };

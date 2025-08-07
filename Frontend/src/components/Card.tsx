@@ -1,16 +1,30 @@
 import { useEffect, useRef } from "react";
 import { DeleteIcon } from "../icons/DeleteIcon";
-import { NoteIcon } from "../icons/NoteIcon";
 import { ShareIcon } from "../icons/ShareIcon";
+import { TwitterIcon } from "../icons/TwitterIcon";
+import { YouTubeIcon } from "../icons/YoutubeIcon";
+import { NotionIcon } from "../icons/NotionIcon";
+import { LinkIcon } from "../icons/LinkIcon";
+import { NoteIcon } from "../icons/NoteIcon";
 import { BACKEND_URL } from "../config";
 import axios from "axios";
 
 interface CardProps {
   title: string;
   link: string;
-  type: "twitter" | "youtube" | "note" | "links" | "notion";
+  type:
+    | "twitter"
+    | "youtube"
+    | "note"
+    | "links"
+    | "notion"
+    | "website"
+    | "document"
+    | "other";
   contentId: string;
   onDelete?: () => void;
+  isSharedView?: boolean;
+  tags?: string[];
 }
 
 function getYouTubeEmbedUrl(url: string): string {
@@ -32,10 +46,17 @@ function getYouTubeEmbedUrl(url: string): string {
   return "";
 }
 
-export const Card = ({ title, link, type, contentId, onDelete }: CardProps) => {
+export const Card = ({
+  title,
+  link,
+  type,
+  contentId,
+  onDelete,
+  isSharedView = false,
+  tags = [],
+}: CardProps) => {
   const twitterRef = useRef<HTMLDivElement>(null);
   console.log(contentId);
-
 
   useEffect(() => {
     if (type === "twitter" && window?.twttr?.widgets) {

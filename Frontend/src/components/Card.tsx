@@ -2,11 +2,15 @@ import { useEffect, useRef } from "react";
 import { DeleteIcon } from "../icons/DeleteIcon";
 import { NoteIcon } from "../icons/NoteIcon";
 import { ShareIcon } from "../icons/ShareIcon";
+import { BACKEND_URL } from "../config";
+import axios from "axios";
 
 interface CardProps {
   title: string;
   link: string;
   type: "twitter" | "youtube" | "note" | "links" | "notion";
+  contentId: string;
+  onDelete?: () => void;
 }
 
 function getYouTubeEmbedUrl(url: string): string {
@@ -28,8 +32,10 @@ function getYouTubeEmbedUrl(url: string): string {
   return "";
 }
 
-export const Card = ({ title, link, type }: CardProps) => {
+export const Card = ({ title, link, type, contentId, onDelete }: CardProps) => {
   const twitterRef = useRef<HTMLDivElement>(null);
+  console.log(contentId);
+
 
   useEffect(() => {
     if (type === "twitter" && window?.twttr?.widgets) {
@@ -50,7 +56,35 @@ export const Card = ({ title, link, type }: CardProps) => {
           <a href={link} target="_blank">
             <ShareIcon size="lg" />
           </a>
-          <div className="cursor-pointer hover:text-red-600">
+          <div
+            onClick={async () => {
+              try {
+                const token = localStorage.getItem("token");
+                console.log("Deleting content with ID:", contentId);
+
+                const response = await axios.request({
+                  method: "DELETE",
+                  url: `${BACKEND_URL}/api/v1/content`,
+                  data: {
+                    contentId: contentId,
+                  },
+                  headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                  },
+                });
+
+                console.log("Delete response:", response.data);
+                if (onDelete) {
+                  onDelete();
+                }
+              } catch (error: any) {
+                console.error("Failed to delete content:", error);
+                console.error("Error response:", error.response?.data);
+              }
+            }}
+            className="cursor-pointer hover:text-red-600"
+          >
             <DeleteIcon size="lg" />
           </div>
         </div>

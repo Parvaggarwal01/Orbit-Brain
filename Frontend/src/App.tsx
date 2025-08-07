@@ -1,10 +1,11 @@
-import { Dashboard } from "./pages/Dashboard";
+// import { Dashboard } from "./pages/Dashboard";
 import { Signup } from "./pages/Signup";
 import { Signin } from "./pages/Signin";
 import { SharePage } from "./pages/SharePage";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Home } from "./pages/Home/Home";
 import { UserProvider } from "./context/UserContext";
+import { Dashboard } from "./pages/Dashboard";
 
 function App() {
   return (

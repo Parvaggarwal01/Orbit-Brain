@@ -8,7 +8,7 @@ import { UserContent } from "../hooks/UserContent";
 import { useUser } from "../context/UserContext";
 import axios from "axios";
 import { BACKEND_URL } from "../config";
-import { CreateContentModal } from "../components/CreateContentModal";
+import { EnhancedCreateContentModal } from "../components/CreateContentModal";
 
 interface ContentItem {
   _id: string;
@@ -25,8 +25,8 @@ export const Dashboard = () => {
   const [activeSort, setActiveSort] = useState("newest");
   const [searchQuery, setSearchQuery] = useState("");
   const [currentView, setCurrentView] = useState<"grid" | "list">("grid");
-  const [isLoading] = useState(false);
   const [shareLoading, setShareLoading] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const { contents: content, loading: contentLoading } = UserContent();
   const { logout, user } = useUser();
@@ -112,66 +112,116 @@ export const Dashboard = () => {
 
   const getViewStyles = () => {
     if (currentView === "list") {
-      return "flex flex-col space-y-4";
+      return "flex flex-col space-y-3 sm:space-y-4";
     }
-    return "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-8 auto-rows-fr";
+    return "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-3 sm:gap-4 md:gap-6 lg:gap-8 auto-rows-fr";
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
-      <EnhancedSidebar
-        onFilterChange={setActiveFilter}
-        onSortChange={setActiveSort}
-        onSearchChange={setSearchQuery}
-        onViewChange={setCurrentView}
-        activeFilter={activeFilter}
-        activeSort={activeSort}
-        currentView={currentView}
-        searchQuery={searchQuery}
-        onLogout={logout}
-        username={user?.username}
-      />
+      {/* FIX: Mobile sidebar overlay
+        Removed `bg-black bg-opacity-50` from the className to make the overlay transparent.
+        The div is still here, so tapping on it will close the sidebar.
+      */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 z-40 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
 
-      <div className="ml-80 p-8">
-        <CreateContentModal
+      {/* Sidebar Wrapper */}
+      <div
+        className={`fixed inset-y-0 left-0 z-50 transform transition-transform duration-300 ease-in-out ${
+          sidebarOpen ? "translate-x-0" : "-translate-x-full"
+        } lg:translate-x-0`}
+      >
+        <EnhancedSidebar
+          onFilterChange={setActiveFilter}
+          onSortChange={setActiveSort}
+          onSearchChange={setSearchQuery}
+          onViewChange={setCurrentView}
+          activeFilter={activeFilter}
+          activeSort={activeSort}
+          currentView={currentView}
+          searchQuery={searchQuery}
+          onLogout={logout}
+          username={user?.username}
+          onClose={() => setSidebarOpen(false)}
+        />
+      </div>
+
+      {/* Main content */}
+      <div className="lg:ml-80 p-3 sm:p-4 lg:p-8">
+        {/* Mobile header with Hamburger Menu */}
+        <div className="lg:hidden mb-4 sm:mb-6 flex items-center justify-between">
+          <button
+            onClick={() => setSidebarOpen(true)}
+            className="p-2 text-gray-600 hover:text-gray-900 bg-white rounded-lg shadow-sm"
+            type="button"
+          >
+            <svg
+              className="w-5 h-5 sm:w-6 sm:h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4 6h16M4 12h16M4 18h16"
+              />
+            </svg>
+          </button>
+          <h1 className="text-lg sm:text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            Orbit Brain
+          </h1>
+          <div className="w-8 h-8"></div>
+        </div>
+
+        <EnhancedCreateContentModal
           open={modalOpen}
           onClose={() => setModalOpen(false)}
         />
 
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-6">
+        <div className="mb-6 sm:mb-8">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6 gap-3 sm:gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mb-1 sm:mb-2">
                 Your Second Brain
               </h1>
-              <p className="text-gray-600">
+              <p className="text-sm sm:text-base text-gray-600">
                 {filteredAndSortedContent.length}{" "}
                 {filteredAndSortedContent.length === 1 ? "item" : "items"}
                 {searchQuery && ` matching "${searchQuery}"`}
                 {activeFilter !== "all" && ` in ${activeFilter}`}
               </p>
             </div>
-
-            <div className="flex gap-3">
-              <Button
-                variants="secondary"
-                text={shareLoading ? "Sharing..." : "Share Brain"}
-                size="md"
-                startIcon={<ShareIcon size="md" />}
-                onClick={handleShare}
-              />
-              <Button
-                variants="primary"
-                text="Add Content"
-                size="md"
-                startIcon={<PlusIcon size="md" />}
-                onClick={() => setModalOpen(true)}
-              />
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+              <div className="w-full sm:w-auto">
+                <Button
+                  onClick={() => setModalOpen(true)}
+                  variants="primary"
+                  text="Add Content"
+                  size="md"
+                  startIcon={<PlusIcon size="md" />}
+                />
+              </div>
+              <div className="w-full sm:w-auto">
+                <Button
+                  onClick={handleShare}
+                  variants="secondary"
+                  text={shareLoading ? "Sharing..." : "Share Brain"}
+                  size="md"
+                  startIcon={<ShareIcon size="md" />}
+                />
+              </div>
             </div>
           </div>
         </div>
 
-        {contentLoading || isLoading ? (
+        {contentLoading ? (
           <div className="flex items-center justify-center py-16">
             <div className="text-center">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
@@ -180,16 +230,16 @@ export const Dashboard = () => {
           </div>
         ) : filteredAndSortedContent.length === 0 ? (
           <div className="text-center py-16">
-            <div className="bg-white rounded-2xl shadow-lg p-12 max-w-md mx-auto">
-              <div className="bg-blue-100 rounded-full p-4 w-20 h-20 mx-auto mb-6 flex items-center justify-center">
-                <span className="text-blue-600 text-3xl">🧠</span>
+            <div className="bg-white rounded-2xl shadow-lg p-8 sm:p-12 max-w-md mx-auto">
+              <div className="bg-blue-100 rounded-full p-4 w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 sm:mb-6 flex items-center justify-center">
+                <span className="text-blue-600 text-2xl sm:text-3xl">🧠</span>
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3">
+              <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2 sm:mb-3">
                 {searchQuery || activeFilter !== "all"
                   ? "No matching content"
                   : "Your brain is empty"}
               </h3>
-              <p className="text-gray-600 mb-6">
+              <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6">
                 {searchQuery || activeFilter !== "all"
                   ? "Try adjusting your filters or search query."
                   : "Start building your second brain by adding your first piece of content."}

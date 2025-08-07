@@ -10,7 +10,7 @@ interface CreateContentModelProps {
   onClose: () => void;
 }
 
-export const CreateContentModal = ({
+export const EnhancedCreateContentModal = ({
   open,
   onClose,
 }: CreateContentModelProps) => {
@@ -111,26 +111,26 @@ export const CreateContentModal = ({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-auto transform transition-all">
-        <div className="p-6 border-b border-gray-200">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center z-50 p-3 sm:p-4">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm sm:max-w-md mx-auto transform transition-all max-h-[90vh] overflow-y-auto">
+        <div className="p-4 sm:p-6 border-b border-gray-200">
           <div className="flex justify-between items-center">
-            <h2 className="text-2xl font-bold text-gray-900">
+            <h2 className="text-lg sm:text-2xl font-bold text-gray-900">
               Add New Content
             </h2>
             <button
               onClick={onClose}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              className="p-1 sm:p-2 hover:bg-gray-100 rounded-lg transition-colors"
             >
               <CrossIcon size="md" />
             </button>
           </div>
-          <p className="text-gray-600 mt-1">
+          <p className="text-sm sm:text-base text-gray-600 mt-1">
             Save content to your second brain
           </p>
         </div>
 
-        <div className="p-6 space-y-6">
+        <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Title *
@@ -154,10 +154,10 @@ export const CreateContentModal = ({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-3">
+            <label className="block text-sm font-medium text-gray-700 mb-2 sm:mb-3">
               Content Type *
             </label>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-2 sm:gap-3">
               {contentTypes.map((type) => (
                 <button
                   key={type.value}
@@ -193,9 +193,8 @@ export const CreateContentModal = ({
             variants="secondary"
             text="Cancel"
             size="md"
-            onClick={onClose}>
-
-          </Button>
+            onClick={onClose}
+          ></Button>
           <Button
             variants="primary"
             text={isSubmitting ? "Adding..." : "Add Content"}

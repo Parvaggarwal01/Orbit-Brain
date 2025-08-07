@@ -27,24 +27,24 @@ interface CardProps {
   tags?: string[];
 }
 
-// function getYouTubeEmbedUrl(url: string): string {
-//   if (url.includes("embed")) return url;
+function getYouTubeEmbedUrl(url: string): string {
+  if (url.includes("embed")) return url;
 
-//   try {
-//     if (url.includes("watch?v=")) {
-//       const id = new URL(url).searchParams.get("v");
-//       return `https://www.youtube.com/embed/${id}`;
-//     }
-//     if (url.includes("youtu.be/")) {
-//       const id = url.split("youtu.be/")[1];
-//       return `https://www.youtube.com/embed/${id}`;
-//     }
-//   } catch {
-//     return "";
-//   }
+  try {
+    if (url.includes("watch?v=")) {
+      const id = new URL(url).searchParams.get("v");
+      return `https://www.youtube.com/embed/${id}`;
+    }
+    if (url.includes("youtu.be/")) {
+      const id = url.split("youtu.be/")[1];
+      return `https://www.youtube.com/embed/${id}`;
+    }
+  } catch {
+    return "";
+  }
 
-//   return "";
-// }
+  return "";
+}
 
 export const Card = ({
   title,
@@ -63,7 +63,7 @@ export const Card = ({
     }
   }, [type, link]);
 
-  // const normalizedLink = link.replace("x.com", "twitter.com");
+  const normalizedLink = link.replace("x.com", "twitter.com");
 
   const getTypeIcon = () => {
     switch (type) {
@@ -97,14 +97,16 @@ export const Card = ({
 
   return (
     <div className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border border-gray-100 overflow-hidden group w-full flex flex-col">
-      <div className="p-6 flex-grow">
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex items-center gap-3 flex-1 min-w-0">
-            <div className={`p-2 rounded-lg ${getTypeColor()} flex-shrink-0`}>
+      <div className="p-4 sm:p-6 flex-grow">
+        <div className="flex items-start justify-between mb-3 sm:mb-4">
+          <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
+            <div
+              className={`p-1.5 sm:p-2 rounded-lg ${getTypeColor()} flex-shrink-0`}
+            >
               {getTypeIcon()}
             </div>
             <div className="min-w-0 flex-1">
-              <h3 className="font-semibold text-gray-900 text-lg mb-1 line-clamp-2 leading-tight">
+              <h3 className="font-semibold text-gray-900 text-base sm:text-lg mb-1 line-clamp-2 leading-tight">
                 {title}
               </h3>
               <span
@@ -115,12 +117,12 @@ export const Card = ({
             </div>
           </div>
 
-          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ml-2">
+          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ml-1 sm:ml-2">
             <a
               href={link}
               target="_blank"
               rel="noopener noreferrer"
-              className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+              className="p-1.5 sm:p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
               title="Open link"
             >
               <ShareIcon size="sm" />
@@ -151,7 +153,7 @@ export const Card = ({
                     console.error("Error response:", error.response?.data);
                   }
                 }}
-                className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                className="p-1.5 sm:p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                 title="Delete content"
               >
                 <DeleteIcon size="sm" />
@@ -161,7 +163,7 @@ export const Card = ({
         </div>
 
         {tags && tags.length > 0 && (
-          <div className="flex flex-wrap gap-1 mb-4">
+          <div className="flex flex-wrap gap-1 mb-3 sm:mb-4">
             {tags.slice(0, 3).map((tag, index) => (
               <span
                 key={index}
@@ -180,7 +182,7 @@ export const Card = ({
       </div>
 
       <div className="border-t border-gray-100 flex-shrink-0">
-        <div className="px-6 py-3 text-sm text-gray-500">
+        <div className="px-4 sm:px-6 py-2 sm:py-3 text-xs sm:text-sm text-gray-500">
           <div className="flex items-center justify-between">
             <span className="text-gray-400">
               {type.charAt(0).toUpperCase() + type.slice(1)} content

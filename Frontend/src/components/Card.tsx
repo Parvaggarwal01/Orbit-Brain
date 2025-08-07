@@ -27,24 +27,24 @@ interface CardProps {
   tags?: string[];
 }
 
-function getYouTubeEmbedUrl(url: string): string {
-  if (url.includes("embed")) return url;
+// function getYouTubeEmbedUrl(url: string): string {
+//   if (url.includes("embed")) return url;
 
-  try {
-    if (url.includes("watch?v=")) {
-      const id = new URL(url).searchParams.get("v");
-      return `https://www.youtube.com/embed/${id}`;
-    }
-    if (url.includes("youtu.be/")) {
-      const id = url.split("youtu.be/")[1];
-      return `https://www.youtube.com/embed/${id}`;
-    }
-  } catch {
-    return "";
-  }
+//   try {
+//     if (url.includes("watch?v=")) {
+//       const id = new URL(url).searchParams.get("v");
+//       return `https://www.youtube.com/embed/${id}`;
+//     }
+//     if (url.includes("youtu.be/")) {
+//       const id = url.split("youtu.be/")[1];
+//       return `https://www.youtube.com/embed/${id}`;
+//     }
+//   } catch {
+//     return "";
+//   }
 
-  return "";
-}
+//   return "";
+// }
 
 export const Card = ({
   title,
@@ -63,7 +63,7 @@ export const Card = ({
     }
   }, [type, link]);
 
-  const normalizedLink = link.replace("x.com", "twitter.com");
+  // const normalizedLink = link.replace("x.com", "twitter.com");
 
   const getTypeIcon = () => {
     switch (type) {

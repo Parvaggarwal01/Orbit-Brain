@@ -3,7 +3,7 @@ import { PlusIcon } from "../icons/PlusIcon";
 import { ShareIcon } from "../icons/ShareIcon";
 import { Button } from "../components/button";
 import { Card } from "../components/Card";
-import { EnhancedSidebar } from "../components/EnhancedSidebar";
+import { EnhancedSidebar } from "../components/Sidebar";
 import { UserContent } from "../hooks/UserContent";
 import { useUser } from "../context/UserContext";
 import axios from "axios";

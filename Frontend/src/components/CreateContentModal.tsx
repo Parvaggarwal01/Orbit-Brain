@@ -10,7 +10,7 @@ interface CreateContentModelProps {
   onClose: () => void;
 }
 
-export const CreateContentModal = ({
+export const EnhancedCreateContentModal = ({
   open,
   onClose,
 }: CreateContentModelProps) => {
@@ -19,14 +19,45 @@ export const CreateContentModal = ({
   );
   const linkRef = useRef<HTMLInputElement>(null as unknown as HTMLInputElement);
   const [selectedType, setSelectedType] = useState("twitter");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const contentTypes = [
-    { value: "twitter", label: "Twitter" },
-    { value: "youtube", label: "YouTube" },
-    { value: "document", label: "Document" },
-    { value: "notion", label: "Notion" },
-    { value: "website", label: "Website" },
-    { value: "other", label: "Other" },
+    {
+      value: "twitter",
+      label: "Twitter",
+      icon: "🐦",
+      description: "Twitter posts and threads",
+    },
+    {
+      value: "youtube",
+      label: "YouTube",
+      icon: "📺",
+      description: "YouTube videos",
+    },
+    {
+      value: "document",
+      label: "Document",
+      icon: "📄",
+      description: "Articles and documents",
+    },
+    {
+      value: "notion",
+      label: "Notion",
+      icon: "📝",
+      description: "Notion pages",
+    },
+    {
+      value: "website",
+      label: "Website",
+      icon: "🌐",
+      description: "Website links",
+    },
+    {
+      value: "other",
+      label: "Other",
+      icon: "📎",
+      description: "Other content types",
+    },
   ];
 
   const addContent = async () => {
@@ -34,77 +65,145 @@ export const CreateContentModal = ({
     const link = linkRef.current?.value;
     const type = selectedType;
 
-    if (!title || !link || !type) {
-      alert("Please Fill All Fields");
+    if (!title || !link) {
+      alert("Please fill in all required fields");
       return;
     }
 
-    const token = localStorage.getItem("token");
-    await axios.post(
-      `${BACKEND_URL}/api/v1/content`,
-      {
-        title,
-        link,
-        type,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
+    setIsSubmitting(true);
+    try {
+      const token = localStorage.getItem("token");
+      await axios.post(
+        `${BACKEND_URL}/api/v1/content`,
+        {
+          title,
+          link,
+          type,
         },
-      }
-    );
-    onClose();
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const successMessage = document.createElement("div");
+      successMessage.className =
+        "fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50";
+      successMessage.textContent = "Content added successfully!";
+      document.body.appendChild(successMessage);
+
+      setTimeout(() => {
+        successMessage.style.transform = "translateX(400px)";
+        setTimeout(() => document.body.removeChild(successMessage), 300);
+      }, 2000);
+
+      onClose();
+      window.location.reload();
+    } catch (error) {
+      alert("Failed to add content. Please try again.");
+      console.error("Error adding content:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
+  if (!open) return null;
+
   return (
-    <div>
-      {open && (
-        <div className="bg-slate-500/80 h-screen w-full fixed top-0 right-0 lg:left-0 flex justify-center items-center">
-          <div className="flex flex-col p-4 cursor-pointer h-auto w-96 bg-white rounded-2xl lg:mr-36">
-            {/* //input div */}
-            <div className="flex flex-col justify-center items-center gap-8 relative ">
-              <div
-                onClick={onClose}
-                className="flex justify-end absolute top-0 right-0"
-              >
-                <CrossIcon size="lg" />
-              </div>
-              <div className="flex flex-col mt-10 gap-5">
-                <label className="text-sm font-medium text-gray-700">
-                    Title*
-                  </label>
-                <Input type="text" placeholder="Title*" reference={titleRef} />
-                <label className="text-sm font-medium text-gray-700">
-                    Link*
-                  </label>
-                <Input type="url" placeholder="Link*" reference={linkRef} />
-                <div className="flex flex-col gap-2">
-                  <label className="text-sm font-medium text-gray-700">
-                    Type*
-                  </label>
-                  <select
-                    value={selectedType}
-                    onChange={(e) => setSelectedType(e.target.value)}
-                    className="px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    {contentTypes.map((type) => (
-                      <option key={type.value} value={type.value}>
-                        {type.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-              <div
-                onClick={addContent}
-                className="flex justify-center rounded-2xl items-center w-full"
-              >
-                <Button variants="primary" text="Submit" size="md" />
-              </div>
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center z-50 p-4">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-auto transform transition-all">
+        <div className="p-6 border-b border-gray-200">
+          <div className="flex justify-between items-center">
+            <h2 className="text-2xl font-bold text-gray-900">
+              Add New Content
+            </h2>
+            <button
+              onClick={onClose}
+              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              <CrossIcon size="md" />
+            </button>
+          </div>
+          <p className="text-gray-600 mt-1">
+            Save content to your second brain
+          </p>
+        </div>
+
+        <div className="p-6 space-y-6">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Title *
+            </label>
+            <Input
+              type="text"
+              placeholder="Give your content a descriptive title..."
+              reference={titleRef}
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Link *
+            </label>
+            <Input
+              type="url"
+              placeholder="https://example.com/content"
+              reference={linkRef}
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-3">
+              Content Type *
+            </label>
+            <div className="grid grid-cols-2 gap-3">
+              {contentTypes.map((type) => (
+                <button
+                  key={type.value}
+                  onClick={() => setSelectedType(type.value)}
+                  className={`p-4 rounded-xl border-2 text-left transition-all hover:shadow-md ${
+                    selectedType === type.value
+                      ? "border-blue-500 bg-blue-50 ring-2 ring-blue-200"
+                      : "border-gray-200 hover:border-gray-300"
+                  }`}
+                >
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-lg">{type.icon}</span>
+                    <span className="font-medium text-gray-900">
+                      {type.label}
+                    </span>
+                  </div>
+                  <p className="text-xs text-gray-500">{type.description}</p>
+                </button>
+              ))}
             </div>
           </div>
         </div>
-      )}
+
+        <div className="p-6 border-t border-gray-200 flex gap-3">
+          {/* <button
+            onClick={onClose}
+            disabled={isSubmitting}
+            className="px-5 py-3rounded-md font-normal m-2 bg-[#94d6f7] text-[#036ca1] flex justify-center hover:bg-[#0284C7] trasition-all hover:duration-300 hover:scale-105"
+          >
+            Cancel
+          </button> */}
+          <Button
+            variants="secondary"
+            text="Cancel"
+            size="md"
+            onClick={onClose}>
+
+          </Button>
+          <Button
+            variants="primary"
+            text={isSubmitting ? "Adding..." : "Add Content"}
+            size="md"
+            onClick={addContent}
+          />
+        </div>
+      </div>
     </div>
   );
 };

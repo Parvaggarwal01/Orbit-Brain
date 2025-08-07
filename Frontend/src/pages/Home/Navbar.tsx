@@ -25,7 +25,7 @@ export const Navbar = () => {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
-            <a
+            {/* <a
               href="#features"
               className="text-gray-700 hover:text-blue-600 font-medium transition-colors"
             >
@@ -42,7 +42,7 @@ export const Navbar = () => {
               className="text-gray-700 hover:text-blue-600 font-medium transition-colors"
             >
               About
-            </a>
+            </a> */}
           </div>
 
           {/* Desktop Auth Buttons */}

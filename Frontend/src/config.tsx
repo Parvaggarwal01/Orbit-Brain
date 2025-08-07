@@ -1,2 +1,1 @@
-
-export const BACKEND_URL = "http://localhost:10000"
+export const BACKEND_URL = "https://orbitbackend-production-429c.up.railway.app";

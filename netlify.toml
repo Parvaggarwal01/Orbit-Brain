@@ -1,0 +1,16 @@
+[build]
+  base = "Frontend"
+  publish = "Frontend/dist"
+  command = "npm run build"
+
+[build.environment]
+  NODE_VERSION = "18"
+
+# This is the key fix - redirect all routes to index.html for client-side routing
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[context.production.environment]
+  VITE_API_URL = "https://orbitbackend-production-429c.up.railway.app"

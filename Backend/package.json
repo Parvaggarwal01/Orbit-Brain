@@ -2,11 +2,14 @@
   "name": "orbit-a-second-brain-app",
   "version": "1.0.0",
   "type": "module",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
     "build": "tsc -b",
     "start": "node dist/index.js",
     "dev": "npm run build && npm run start"
+  },
+  "engines": {
+    "node": ">=16.0.0"
   },
   "keywords": [],
   "author": "",

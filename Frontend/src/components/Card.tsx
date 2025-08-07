@@ -56,7 +56,6 @@ export const Card = ({
   tags = [],
 }: CardProps) => {
   const twitterRef = useRef<HTMLDivElement>(null);
-  console.log(contentId);
 
   useEffect(() => {
     if (type === "twitter" && window?.twttr?.widgets) {
@@ -66,69 +65,136 @@ export const Card = ({
 
   const normalizedLink = link.replace("x.com", "twitter.com");
 
+  const getTypeIcon = () => {
+    switch (type) {
+      case "twitter":
+        return <TwitterIcon size="md" />;
+      case "youtube":
+        return <YouTubeIcon size="md" />;
+      case "notion":
+        return <NotionIcon size="md" />;
+      case "website":
+        return <LinkIcon size="md" />;
+      default:
+        return <NoteIcon size="md" />;
+    }
+  };
+
+  const getTypeColor = () => {
+    switch (type) {
+      case "twitter":
+        return "bg-blue-100 text-blue-800";
+      case "youtube":
+        return "bg-red-100 text-red-800";
+      case "notion":
+        return "bg-gray-100 text-gray-800";
+      case "website":
+        return "bg-green-100 text-green-800";
+      default:
+        return "bg-purple-100 text-purple-800";
+    }
+  };
+
   return (
-    <div className="flex justify-around flex-col  border border-slate-300 h-auto w-80 overflow-hidden rounded-lg mt-5 ml-5 my-5 py-3 px-5 shadow-md">
-      <div className="flex justify-between">
-        <div className="flex gap-3">
-          <NoteIcon size="lg" />
-          <h1 className="font-semibold">{title}</h1>
-        </div>
-        <div className="flex gap-3">
-          <a href={link} target="_blank">
-            <ShareIcon size="lg" />
-          </a>
-          <div
-            onClick={async () => {
-              try {
-                const token = localStorage.getItem("token");
-                console.log("Deleting content with ID:", contentId);
+    <div className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border border-gray-100 overflow-hidden group w-full flex flex-col">
+      <div className="p-6 flex-grow">
+        <div className="flex items-start justify-between mb-4">
+          <div className="flex items-center gap-3 flex-1 min-w-0">
+            <div className={`p-2 rounded-lg ${getTypeColor()} flex-shrink-0`}>
+              {getTypeIcon()}
+            </div>
+            <div className="min-w-0 flex-1">
+              <h3 className="font-semibold text-gray-900 text-lg mb-1 line-clamp-2 leading-tight">
+                {title}
+              </h3>
+              <span
+                className={`inline-block px-2 py-1 text-xs font-medium rounded-full ${getTypeColor()}`}
+              >
+                {type.charAt(0).toUpperCase() + type.slice(1)}
+              </span>
+            </div>
+          </div>
 
-                const response = await axios.request({
-                  method: "DELETE",
-                  url: `${BACKEND_URL}/api/v1/content`,
-                  data: {
-                    contentId: contentId,
-                  },
-                  headers: {
-                    Authorization: `Bearer ${token}`,
-                    "Content-Type": "application/json",
-                  },
-                });
+          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ml-2">
+            <a
+              href={link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+              title="Open link"
+            >
+              <ShareIcon size="sm" />
+            </a>
+            {!isSharedView && (
+              <button
+                onClick={async () => {
+                  try {
+                    const token = localStorage.getItem("token");
+                    console.log("Deleting content with ID:", contentId);
 
-                console.log("Delete response:", response.data);
-                if (onDelete) {
-                  onDelete();
-                }
-              } catch (error: any) {
-                console.error("Failed to delete content:", error);
-                console.error("Error response:", error.response?.data);
-              }
-            }}
-            className="cursor-pointer hover:text-red-600"
-          >
-            <DeleteIcon size="lg" />
+                    const response = await axios.request({
+                      method: "DELETE",
+                      url: `${BACKEND_URL}/api/v1/content`,
+                      data: { contentId },
+                      headers: {
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "application/json",
+                      },
+                    });
+
+                    console.log("Delete response:", response.data);
+                    if (onDelete) {
+                      onDelete();
+                    }
+                  } catch (error: any) {
+                    console.error("Failed to delete content:", error);
+                    console.error("Error response:", error.response?.data);
+                  }
+                }}
+                className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                title="Delete content"
+              >
+                <DeleteIcon size="sm" />
+              </button>
+            )}
           </div>
         </div>
+
+        {tags && tags.length > 0 && (
+          <div className="flex flex-wrap gap-1 mb-4">
+            {tags.slice(0, 3).map((tag, index) => (
+              <span
+                key={index}
+                className="px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded-full"
+              >
+                #{tag}
+              </span>
+            ))}
+            {tags.length > 3 && (
+              <span className="px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded-full">
+                +{tags.length - 3} more
+              </span>
+            )}
+          </div>
+        )}
       </div>
-      <div className="w-full h-auto mt-2 mb-2">
-        {type === "youtube" && (
-          <iframe
-            className="rounded-2xl min-h-72 w-full mt-5"
-            src={getYouTubeEmbedUrl(link)}
-            title="YouTube video player"
-            frameBorder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            referrerPolicy="strict-origin-when-cross-origin"
-            allowFullScreen
-          ></iframe>
-        )}
-        {type === "twitter" && (
-          <div ref={twitterRef}>
-            <blockquote className="twitter-tweet">
-              <a href={normalizedLink}></a>
-            </blockquote>
+
+      <div className="border-t border-gray-100 flex-shrink-0">
+        <div className="px-6 py-3 text-sm text-gray-500">
+          <div className="flex items-center justify-between">
+            <span className="text-gray-400">
+              {type.charAt(0).toUpperCase() + type.slice(1)} content
+            </span>
+            <a
+              href={link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-500 hover:text-blue-700 text-xs font-medium"
+            >
+              View →
+            </a>
           </div>
-        )}
+        </div>
       </div>
     </div>
   );

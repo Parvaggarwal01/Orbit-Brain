@@ -10,7 +10,7 @@ interface CreateContentModelProps {
   onClose: () => void;
 }
 
-export const EnhancedCreateContentModal = ({
+export const CreateContentModal = ({
   open,
   onClose,
 }: CreateContentModelProps) => {

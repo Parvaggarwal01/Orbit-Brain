@@ -104,19 +104,50 @@ app.post("/api/v1/content", UserMiddleware, async (req, res) => {
   const link = req.body.link;
   const type = req.body.type;
 
-  await ContentModel.create({
-    title: title,
-    link: link,
-    type: type,
+  try {
+    await ContentModel.create({
+      title: title,
+      link: link,
+      type: type,
+      //@ts-ignore
+      userId: req.userId,
+      tags: [],
+      createdAt: new Date(),
+    });
 
+    return res.status(200).json({
+      message: "Content Created Successfully",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Failed to create content",
+      error: error,
+    });
+  }
+});
+
+app.get("/api/v1/user/profile", UserMiddleware, async (req, res) => {
+  try {
     //@ts-ignore
-    userId: req.userId,
-    tags: [],
-  });
+    const user = await UserModel.findById(req.userId).select("-password");
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
 
-  return res.status(200).json({
-    message: "Content Created Successfully",
-  });
+    res.json({
+      user: {
+        id: user._id,
+        username: user.username,
+      },
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Internal Server Error",
+      error: error,
+    });
+  }
 });
 
 app.get("/api/v1/content", UserMiddleware, async (req, res) => {
@@ -164,19 +195,19 @@ app.delete("/api/v1/content", UserMiddleware, async (req, res) => {
   }
 });
 
-app.post("/api/v1/brain/share",UserMiddleware, async (req, res) => {
+app.post("/api/v1/brain/share", UserMiddleware, async (req, res) => {
   const share = req.body.share;
-  try{
-    if(share){
+  try {
+    if (share) {
       const existingShare = await LinkModel.findOne({
         //@ts-ignore
         userId: req.userId,
-      })
-      if(existingShare){
+      });
+      if (existingShare) {
         return res.json({
           message: "Share link already exists",
-          hash: existingShare.hash
-        })
+          hash: existingShare.hash,
+        });
       }
 
       const hash = random(10);
@@ -184,26 +215,26 @@ app.post("/api/v1/brain/share",UserMiddleware, async (req, res) => {
         //@ts-ignore
         userId: req.userId,
         hash: hash,
-      })
+      });
 
       res.json({
-        message : "Share Link Created Successfully",
-        hash: hash
-      })
-    }else {
+        message: "Share Link Created Successfully",
+        hash: hash,
+      });
+    } else {
       await LinkModel.deleteOne({
         //@ts-ignore
         userId: req.userId,
-      })
+      });
 
       res.json({
         message: "Share Link Deleted Successfully",
-      })
+      });
     }
   } catch (err) {
     return res.status(500).json({
-      message: "Internal Server Error"
-    })
+      message: "Internal Server Error",
+    });
   }
 });
 
@@ -211,34 +242,32 @@ app.get("/api/v1/brain/:shareLink", async (req, res) => {
   const hash = req.params.shareLink;
   const link = await LinkModel.findOne({
     hash: hash,
-  })
+  });
 
-  if(!link){
+  if (!link) {
     return res.status(404).json({
-      message: "Invalid Link"
-    })
+      message: "Invalid Link",
+    });
   }
   const content = await ContentModel.find({
     userId: link.userId,
-  })
+  });
 
   const user = await UserModel.findOne({
-    _id: link.userId
-  })
+    _id: link.userId,
+  });
 
-  if(!user){
+  if (!user) {
     return res.status(411).json({
-      message :"User Not Found"
-    })
+      message: "User Not Found",
+    });
   }
 
   res.json({
     username: user.username,
-    content: content
-  })
+    content: content,
+  });
 });
-
-
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
